@@ -539,10 +539,97 @@ const starMat = new THREE.PointsMaterial({
 });
 scene.add(new THREE.Points(starGeo, starMat));
 
-// FIREWORKS
+// 🌕 3D GLOWING FULL MOON & MOONLIGHT
+function createMoonTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  const grad = ctx.createRadialGradient(128, 128, 20, 128, 128, 128);
+  grad.addColorStop(0, "#fffff5");
+  grad.addColorStop(0.5, "#fff2b8");
+  grad.addColorStop(0.85, "#ffd56b");
+  grad.addColorStop(1, "#f39c12");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 256);
+
+  ctx.fillStyle = "rgba(210, 160, 80, 0.2)";
+  ctx.beginPath();
+  ctx.arc(80, 90, 42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(165, 140, 52, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(110, 175, 34, 0, Math.PI * 2);
+  ctx.fill();
+  return new THREE.CanvasTexture(canvas);
+}
+
+const moonGeo = new THREE.SphereGeometry(6.2, 32, 32);
+const moonMat = new THREE.MeshStandardMaterial({
+  map: createMoonTexture(),
+  emissive: 0xffe680,
+  emissiveIntensity: 0.85,
+  roughness: 0.5,
+});
+const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+moonMesh.position.set(22, 30, -38);
+scene.add(moonMesh);
+
+const moonGlowMat = new THREE.SpriteMaterial({
+  map: createParticleTexture(),
+  color: 0xfff0b3,
+  transparent: true,
+  opacity: 0.65,
+  blending: THREE.AdditiveBlending,
+});
+const moonGlow = new THREE.Sprite(moonGlowMat);
+moonGlow.scale.set(34, 34, 1);
+moonMesh.add(moonGlow);
+
+const moonLight = new THREE.PointLight(0xfff3cc, 1.8, 80);
+moonLight.position.set(20, 28, -32);
+scene.add(moonLight);
+
+const moonHitGeo = new THREE.SphereGeometry(9.0, 12, 12);
+const moonHitMat = new THREE.MeshBasicMaterial({ visible: false });
+const moonHitMesh = new THREE.Mesh(moonHitGeo, moonHitMat);
+moonHitMesh.userData.isMoon = true;
+moonMesh.add(moonHitMesh);
+interactiveObjects.push(moonHitMesh);
+
+// SOUND SYNTHESIZER (WEB AUDIO API)
+let audioCtx = null;
+function playMagicChime() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+    const notes = [523.25, 659.25, 783.99, 1046.5, 1318.51];
+    notes.forEach((freq, idx) => {
+      setTimeout(() => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1.2);
+      }, idx * 90);
+    });
+  } catch (err) {}
+}
+
+// FIREWORKS & HEART FIREWORKS
 let fireworks = [];
-function createFirework(pos) {
-  const pCount = 50;
+function createFirework(pos, pCount = 50, customColor = 0xffd700) {
   const pGeo = new THREE.BufferGeometry();
   const pPositions = new Float32Array(pCount * 3);
   const velocities = [];
@@ -567,8 +654,8 @@ function createFirework(pos) {
 
   pGeo.setAttribute("position", new THREE.BufferAttribute(pPositions, 3));
   const pMat = new THREE.PointsMaterial({
-    size: 0.35,
-    color: 0xffd700,
+    size: 0.38,
+    color: customColor,
     transparent: true,
     opacity: 1,
     blending: THREE.AdditiveBlending,
@@ -579,6 +666,141 @@ function createFirework(pos) {
 
   fireworks.push({ mesh: pMesh, velocities: velocities, life: 1.0 });
 }
+
+// HEART FIREWORKS
+function createHeartFirework(pos) {
+  playMagicChime();
+  const count = 90;
+  const pGeo = new THREE.BufferGeometry();
+  const pPositions = new Float32Array(count * 3);
+  const velocities = [];
+
+  for (let i = 0; i < count; i++) {
+    pPositions[i * 3] = pos.x;
+    pPositions[i * 3 + 1] = pos.y;
+    pPositions[i * 3 + 2] = pos.z;
+
+    const t = (i / count) * Math.PI * 2;
+    const hx = 16 * Math.pow(Math.sin(t), 3);
+    const hy = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+
+    const speed = 0.022 + Math.random() * 0.01;
+    velocities.push(
+      new THREE.Vector3(
+        hx * speed,
+        hy * speed,
+        (Math.random() - 0.5) * 0.06,
+      ),
+    );
+  }
+
+  pGeo.setAttribute("position", new THREE.BufferAttribute(pPositions, 3));
+  const pMat = new THREE.PointsMaterial({
+    size: 0.45,
+    color: 0xff758f,
+    transparent: true,
+    opacity: 1,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const pMesh = new THREE.Points(pGeo, pMat);
+  scene.add(pMesh);
+  fireworks.push({ mesh: pMesh, velocities: velocities, life: 1.5 });
+
+  setTimeout(() => {
+    createFirework(new THREE.Vector3(pos.x - 3, pos.y + 2, pos.z), 40, 0xffd700);
+    createFirework(new THREE.Vector3(pos.x + 3, pos.y + 2, pos.z), 40, 0xffffff);
+  }, 250);
+}
+
+// CUSTOM WISH LANTERNS
+let customLanterns = [];
+function spawnCustomWishLantern(customWish) {
+  const { group: lantern } = createLanternMesh();
+  const customTex = (function() {
+    const cvs = document.createElement("canvas");
+    cvs.width = 128; cvs.height = 128;
+    const cx = cvs.getContext("2d");
+    const gr = cx.createLinearGradient(0, 0, 0, 128);
+    gr.addColorStop(0, "#ff4081");
+    gr.addColorStop(0.5, "#f50057");
+    gr.addColorStop(1, "#ffd700");
+    cx.fillStyle = gr;
+    cx.fillRect(0, 0, 128, 128);
+    cx.strokeStyle = "#fff";
+    cx.lineWidth = 6;
+    cx.strokeRect(4, 4, 120, 120);
+    return new THREE.CanvasTexture(cvs);
+  })();
+
+  lantern.children[0].material = new THREE.MeshStandardMaterial({
+    map: customTex,
+    emissive: 0xff3377,
+    emissiveIntensity: 0.9,
+    roughness: 0.25,
+  });
+
+  lantern.position.set(0, 2, 20);
+  lantern.scale.set(1.4, 1.4, 1.4);
+  scene.add(lantern);
+
+  customLanterns.push({
+    mesh: lantern,
+    target: moonMesh.position.clone(),
+    speedY: 0.04,
+    life: 0,
+    wish: customWish,
+  });
+
+  createHeartFirework(lantern.position);
+}
+
+// TOAST NOTIFICATIONS
+const toastEl = document.getElementById("toastMessage");
+let toastTimeout = null;
+function showToast(text, duration = 3500) {
+  if (!toastEl) return;
+  toastEl.textContent = text;
+  toastEl.classList.add("active");
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toastEl.classList.remove("active");
+  }, duration);
+}
+
+// DYNAMIC GREETING ACCORDING TO REAL TIME
+function updateGreetingBanner() {
+  const banner = document.getElementById("greetingBanner");
+  const greetingText = document.getElementById("greetingText");
+  if (!banner || !greetingText) return;
+
+  const hour = new Date().getHours();
+  let message = "";
+  let iconClass = "fas fa-moon";
+
+  if (hour >= 0 && hour < 5) {
+    message = "Khuya rồi, Hồng Vân ngủ ngoan để mau khỏe lại nhé 🌙";
+    iconClass = "fas fa-bed";
+  } else if (hour >= 5 && hour < 11) {
+    message = "Chào buổi sáng Vân! Cậu thấy đỡ hơn chút nào chưa? Nhớ ăn sáng nhé ☀️";
+    iconClass = "fas fa-sun";
+  } else if (hour >= 11 && hour < 14) {
+    message = "Trưa rồi, Hồng Vân nhớ ăn uống ấm bụng và chợp mắt một chút nha 🍱";
+    iconClass = "fas fa-utensils";
+  } else if (hour >= 14 && hour < 18) {
+    message = "Chiều thu dịu mát, nhớ uống nước ấm và giữ ấm cổ họng nhé Vân 🍵";
+    iconClass = "fas fa-mug-hot";
+  } else {
+    message = "Chúc Hồng Vân buổi tối bình an, ngập tràn niềm vui và mau khỏi ốm 🏮";
+    iconClass = "fas fa-moon";
+  }
+
+  const iconEl = banner.querySelector(".greeting-icon");
+  if (iconEl) iconEl.className = iconClass + " greeting-icon";
+  greetingText.textContent = message;
+}
+updateGreetingBanner();
+setInterval(updateGreetingBanner, 60000);
 
 // RAYCASTER & INTERACTION
 const raycaster = new THREE.Raycaster();
@@ -592,6 +814,26 @@ const wishText = document.getElementById("wishText");
 const wishImage = document.getElementById("wishImage");
 const closeWishBtn = document.getElementById("closeWishBtn");
 
+// OTHER MODALS & BUTTONS
+const customWishModal = document.getElementById("customWishModal");
+const customWishInput = document.getElementById("customWishInput");
+const submitWishBtn = document.getElementById("submitWishBtn");
+const closeCustomWishBtn = document.getElementById("closeCustomWishBtn");
+
+const vitaminModal = document.getElementById("vitaminModal");
+const closeVitaminBtn = document.getElementById("closeVitaminBtn");
+const nextPillBtn = document.getElementById("nextPillBtn");
+const pillIcon = document.getElementById("pillIcon");
+const pillContent = document.getElementById("pillContent");
+
+const letterModal = document.getElementById("letterModal");
+const closeLetterBtn = document.getElementById("closeLetterBtn");
+
+const btnOpenWishForm = document.getElementById("btn-open-wish-form");
+const btnOpenVitamin = document.getElementById("btn-open-vitamin");
+const btnOpenLetter = document.getElementById("btn-open-letter");
+const btnFireworkMoon = document.getElementById("btn-firework-moon");
+
 let pointerDownPos = { x: 0, y: 0 };
 
 function onPointerDown(event) {
@@ -601,9 +843,20 @@ function onPointerDown(event) {
     event.clientY || (event.touches && event.touches[0].clientY) || 0;
 }
 
+function triggerMoonCelebration() {
+  createHeartFirework(moonMesh.position);
+  showToast("🌕 Trăng rằm soi sáng: Mong Hồng Vân luôn an nhiên, mau khỏe lại và mãi rạng rỡ! 💖", 4000);
+}
+
 function onPointerUp(event) {
-  if (event.target.closest(".top-bar") || event.target.closest(".wish-modal"))
+  if (
+    event.target.closest(".top-bar") ||
+    event.target.closest(".wish-modal") ||
+    event.target.closest(".bottom-dock") ||
+    event.target.closest(".greeting-banner")
+  ) {
     return;
+  }
 
   const clientX =
     event.clientX ||
@@ -628,10 +881,16 @@ function onPointerUp(event) {
 
   if (intersects.length > 0) {
     const hitMesh = intersects[0].object;
+
+    if (hitMesh.userData.isMoon) {
+      triggerMoonCelebration();
+      return;
+    }
+
     selectedLantern = hitMesh.userData.parentLantern || hitMesh.parent;
     const lPos = selectedLantern.position;
 
-    createFirework(lPos);
+    createFirework(lPos, 45, 0xffd700);
 
     const offset = new THREE.Vector3()
       .subVectors(camera.position, lPos)
@@ -658,25 +917,197 @@ function resetCamera() {
   selectedLantern = null;
 }
 
+function closeAllModals() {
+  wishModal.classList.remove("active");
+  customWishModal.classList.remove("active");
+  vitaminModal.classList.remove("active");
+  letterModal.classList.remove("active");
+  resetCamera();
+}
+
 function closeWishCard(e) {
   if (e) {
     e.stopPropagation();
     e.preventDefault();
   }
-  wishModal.classList.remove("active");
-  resetCamera();
+  closeAllModals();
 }
 
 closeWishBtn.addEventListener("click", closeWishCard);
 closeWishBtn.addEventListener("touchend", closeWishCard);
 
-wishModal.addEventListener("click", (e) => {
-  if (e.target === wishModal) closeWishCard(e);
+closeCustomWishBtn.addEventListener("click", closeWishCard);
+closeVitaminBtn.addEventListener("click", closeWishCard);
+closeLetterBtn.addEventListener("click", closeWishCard);
+
+[wishModal, customWishModal, vitaminModal, letterModal].forEach((modal) => {
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeWishCard(e);
+  });
 });
 
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeWishCard();
 });
+
+// DOCK BUTTON HANDLERS
+if (btnOpenWishForm) {
+  btnOpenWishForm.addEventListener("click", () => {
+    closeAllModals();
+    customWishModal.classList.add("active");
+    if (customWishInput) customWishInput.focus();
+  });
+}
+
+if (submitWishBtn) {
+  submitWishBtn.addEventListener("click", () => {
+    const text = (customWishInput.value || "").trim();
+    if (!text) {
+      showToast("Vân ơi, hãy gõ một điều ước trước khi thả đèn nhé! 🏮");
+      return;
+    }
+    spawnCustomWishLantern(text);
+    wishList.push({
+      text: text,
+      img: "./assets/1.jpg",
+    });
+    customWishInput.value = "";
+    closeAllModals();
+    showToast("✨ Điều ước của Vân đã cất cánh bay lên cung trăng rồi!", 4500);
+  });
+}
+
+// VITAMINS / RX HAPPINESS CARE
+const vitaminsForVan = [
+  { icon: "🍵", text: "Uống ngay 1 ly nước ấm đầy, giữ ấm ngực và cổ họng thật kỹ nhé Hồng Vân." },
+  { icon: "🛌", text: "Hôm nay Vân đã rất cố gắng rồi. Tạm gác mọi âu lo lại và ngủ một giấc thật sâu nhé." },
+  { icon: "🍯", text: "Uống chút nước ấm pha mật ong chanh cho dịu họng nha cô gái xinh đẹp." },
+  { icon: "🌸", text: "Bệnh tật chỉ là thử thách nhỏ thôi, Hồng Vân kiên cường sắp khỏe re và lại líu lo vui vẻ rồi!" },
+  { icon: "💖", text: "Luôn có một người âm thầm quan tâm và cầu chúc cho Vân khỏe lại từng phút giây." },
+  { icon: "🧸", text: "Không được bỏ bữa đâu đấy, nhớ ăn món ấm nóng và bồi bổ sức khỏe nha." },
+  { icon: "✨", text: "Gửi tặng Hồng Vân 1000 nụ cười và triệu năng lượng tích cực từ phương xa!" },
+  { icon: "🌙", text: "Mong mọi mệt mỏi tan biến theo gió thu, chúc Vân sớm hồi phục và miệng luôn mỉm cười." }
+];
+
+let lastPillIdx = 0;
+function showNextPill() {
+  lastPillIdx = (lastPillIdx + 1) % vitaminsForVan.length;
+  const pill = vitaminsForVan[lastPillIdx];
+  const display = document.getElementById("pillDisplay");
+  display.style.transform = "scale(0.85)";
+  display.style.opacity = "0.5";
+  setTimeout(() => {
+    pillIcon.textContent = pill.icon;
+    pillContent.textContent = `"${pill.text}"`;
+    display.style.transform = "scale(1)";
+    display.style.opacity = "1";
+    playMagicChime();
+  }, 180);
+}
+
+if (btnOpenVitamin) {
+  btnOpenVitamin.addEventListener("click", () => {
+    closeAllModals();
+    vitaminModal.classList.add("active");
+    playMagicChime();
+  });
+}
+
+if (nextPillBtn) {
+  nextPillBtn.addEventListener("click", showNextPill);
+}
+
+if (btnOpenLetter) {
+  btnOpenLetter.addEventListener("click", () => {
+    closeAllModals();
+    letterModal.classList.add("active");
+    playMagicChime();
+  });
+}
+
+if (btnFireworkMoon) {
+  btnFireworkMoon.addEventListener("click", () => {
+    targetCamPos = new THREE.Vector3(12, 18, -10);
+    targetCamTarget = moonMesh.position.clone();
+    triggerMoonCelebration();
+  });
+}
+
+// ✨ MAGIC TOUCH / CURSOR TRAIL CANVAS
+(function initMagicTrail() {
+  const canvas = document.getElementById("magic-trail-canvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  let width = (canvas.width = window.innerWidth);
+  let height = (canvas.height = window.innerHeight);
+
+  window.addEventListener("resize", () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  const trailParticles = [];
+  const colors = ["#ffd700", "#ff758f", "#ffb6c1", "#ffffff", "#ffd166"];
+
+  function addParticle(x, y) {
+    for (let i = 0; i < 2; i++) {
+      trailParticles.push({
+        x: x + (Math.random() - 0.5) * 8,
+        y: y + (Math.random() - 0.5) * 8,
+        size: Math.random() * 3.5 + 1.5,
+        speedX: (Math.random() - 0.5) * 1.5,
+        speedY: (Math.random() - 0.5) * 1.5 - 0.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1.0,
+        decay: Math.random() * 0.02 + 0.02,
+        isHeart: Math.random() < 0.25,
+      });
+    }
+  }
+
+  function onMove(e) {
+    const x = e.clientX || (e.touches && e.touches[0].clientX);
+    const y = e.clientY || (e.touches && e.touches[0].clientY);
+    if (x && y) addParticle(x, y);
+  }
+
+  window.addEventListener("mousemove", onMove, { passive: true });
+  window.addEventListener("touchmove", onMove, { passive: true });
+
+  function renderTrail() {
+    ctx.clearRect(0, 0, width, height);
+
+    for (let i = trailParticles.length - 1; i >= 0; i--) {
+      const p = trailParticles[i];
+      p.x += p.speedX;
+      p.y += p.speedY;
+      p.life -= p.decay;
+
+      if (p.life <= 0) {
+        trailParticles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+
+      if (p.isHeart) {
+        ctx.font = `${p.size * 2.5}px sans-serif`;
+        ctx.fillText("♥", p.x, p.y);
+      } else {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    requestAnimationFrame(renderTrail);
+  }
+  renderTrail();
+})();
 
 // AUDIO
 const bgm = document.getElementById("bgm");
@@ -693,7 +1124,7 @@ audioBtn.addEventListener("click", () => {
       .then(() => {
         audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
       })
-      .catch(() => { });
+      .catch(() => {});
   }
   isPlaying = !isPlaying;
 });
@@ -705,6 +1136,8 @@ function animate() {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
   const time = clock.getElapsedTime();
+
+  moonMesh.rotation.y += 0.001;
 
   lanterns.forEach((lantern) => {
     lantern.position.y += lantern.userData.speedY;
@@ -720,6 +1153,26 @@ function animate() {
       lantern.position.y = -3;
     }
   });
+
+  // Custom Wish Lanterns
+  for (let i = customLanterns.length - 1; i >= 0; i--) {
+    const cl = customLanterns[i];
+    cl.life += delta;
+    cl.mesh.position.y += cl.speedY;
+    cl.mesh.position.x += (moonMesh.position.x - cl.mesh.position.x) * 0.003;
+    cl.mesh.position.z += (moonMesh.position.z - cl.mesh.position.z) * 0.003;
+    cl.mesh.rotation.y += 0.01;
+
+    if (Math.random() < 0.25) {
+      createFirework(cl.mesh.position, 6, 0xff758f);
+    }
+
+    if (cl.mesh.position.y > 35 || cl.life > 20) {
+      createHeartFirework(cl.mesh.position);
+      scene.remove(cl.mesh);
+      customLanterns.splice(i, 1);
+    }
+  }
 
   const pPos = petalsGeo.attributes.position.array;
   for (let i = 0; i < fallingPetalsCount; i++) {
@@ -787,3 +1240,4 @@ window.addEventListener("resize", () => {
     Math.min(window.devicePixelRatio, width < 768 ? 1.5 : 2),
   );
 });
+

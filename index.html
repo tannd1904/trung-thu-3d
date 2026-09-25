@@ -16,7 +16,14 @@
 
 <body>
 
-    <div id="webgl-container"></div>
+    <!-- Magic Trail Canvas -->
+    <canvas id="magic-trail-canvas"></canvas>
+
+    <!-- Dynamic Greeting Banner -->
+    <div class="greeting-banner" id="greetingBanner">
+        <i class="fas fa-moon greeting-icon"></i>
+        <span class="greeting-text" id="greetingText">Đang tải lời chúc...</span>
+    </div>
 
     <div class="top-bar">
         <button class="icon-btn" id="audio-btn" title="Bật/Tắt Nhạc"><i class="fas fa-music"></i></button>
@@ -24,8 +31,29 @@
                 class="fas fa-compress-arrows-alt"></i></button>
     </div>
 
-    <div class="click-hint">Xin mời Hồng Vân mở lồng đèn</div>
+    <!-- Floating Action Dock -->
+    <div class="bottom-dock">
+        <button class="dock-btn" id="btn-open-wish-form">
+            <i class="fas fa-paper-plane"></i>
+            <span>Thả Điều Ước</span>
+        </button>
+        <button class="dock-btn highlight" id="btn-open-vitamin">
+            <i class="fas fa-heart-pulse"></i>
+            <span>Vitamin Cho Vân</span>
+        </button>
+        <button class="dock-btn" id="btn-open-letter">
+            <i class="fas fa-envelope-open-text"></i>
+            <span>Thư Riêng</span>
+        </button>
+        <button class="dock-btn" id="btn-firework-moon" title="Chạm Mặt Trăng">
+            <i class="fas fa-moon"></i>
+            <span>Ngắm Trăng</span>
+        </button>
+    </div>
 
+    <div class="click-hint">Xin mời Hồng Vân chạm vào lồng đèn hoặc mặt trăng nhé ✨</div>
+
+    <!-- Modal 1: Lời chúc từ lồng đèn -->
     <div class="wish-modal" id="wishModal">
         <div class="wish-card">
             <button class="close-btn" id="closeWishBtn" aria-label="Đóng"><i class="fas fa-times"></i></button>
@@ -39,6 +67,71 @@
             <div class="tag">✦ Trung Thu An Lành ✦</div>
         </div>
     </div>
+
+    <!-- Modal 2: Thả đèn ước nguyện của riêng Vân -->
+    <div class="wish-modal" id="customWishModal">
+        <div class="wish-card custom-wish-card">
+            <button class="close-btn" id="closeCustomWishBtn" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <div class="modal-badge">🏮 Cung Trăng Đón Nhận</div>
+            <h3>Điều Ước Của Hồng Vân</h3>
+            <p class="modal-sub">Đêm trăng rằm huyền diệu, hãy gửi gắm mong ước của Vân lên bầu trời sao nhé...</p>
+
+            <div class="input-group">
+                <textarea id="customWishInput" placeholder="Ví dụ: Mong bản thân sớm khỏe lại, ăn thật ngon, ngủ thật sâu và mỗi ngày đều nở nụ cười rạng rỡ..." rows="4"></textarea>
+            </div>
+
+            <button class="submit-wish-btn" id="submitWishBtn">
+                <i class="fas fa-paper-plane"></i> Thả Lồng Đèn Ước Nguyện ✨
+            </button>
+            <div class="tag">✦ Ước Nguyện Bay Cao ✦</div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Hộp quà năng lượng & Vitamin nụ cười cho Vân -->
+    <div class="wish-modal" id="vitaminModal">
+        <div class="wish-card vitamin-card">
+            <button class="close-btn" id="closeVitaminBtn" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <div class="rx-header">
+                <div class="rx-symbol">℞</div>
+                <div>
+                    <div class="rx-title">Đơn Thuốc Hạnh Phúc</div>
+                    <div class="rx-patient">Bệnh nhân đặc biệt: <strong>Hồng Vân</strong></div>
+                </div>
+            </div>
+
+            <div class="pill-display" id="pillDisplay">
+                <div class="pill-icon" id="pillIcon">🍵</div>
+                <div class="pill-content" id="pillContent">
+                    "Uống ngay 1 ly nước ấm đầy, giữ ấm ngực và cổ họng thật kỹ nhé cô gái."
+                </div>
+            </div>
+
+            <button class="next-pill-btn" id="nextPillBtn">
+                <i class="fas fa-capsules"></i> Uống thêm 1 liều vui vẻ ✨
+            </button>
+            <div class="tag">✦ Mau Mau Khỏe Lại Nha Hồng Vân ✦</div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Bức thư bí mật gửi Hồng Vân -->
+    <div class="wish-modal" id="letterModal">
+        <div class="wish-card letter-card">
+            <button class="close-btn" id="closeLetterBtn" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <div class="wax-seal"><i class="fas fa-heart"></i></div>
+            <h3 class="letter-heading">Gửi Hồng Vân thân thương,</h3>
+            
+            <div class="letter-body">
+                <p>Mùa Trung Thu này, khi biết Vân không được khỏe, mình chỉ muốn gửi đến Vân thật nhiều năng lượng ấm áp nhất.</p>
+                <p>Bầu trời trăng sao 3D này, những chú thỏ ngọc, cội hoa anh đào và đàn lồng đèn lấp lánh được tạo ra chỉ để dành riêng cho Vân — hy vọng có thể đem lại cho Vân một thoáng an yên và một nụ cười thật tươi.</p>
+                <p>Bệnh tật rồi sẽ nhanh chóng qua đi thôi. Vân nhớ nghỉ ngơi thật tốt, giữ ấm, ăn uống ngon miệng và đừng suy nghĩ nhiều nhé. Cậu xứng đáng nhận được tất cả những điều dịu dàng và tuyệt vời nhất.</p>
+                <p class="letter-closing">Cầu chúc Vân mau sớm bình phục và luôn luôn rạng rỡ!</p>
+                <div class="letter-signature">✦ Người luôn dõi theo và cầu chúc cho Vân ✦</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Toast Notification -->
+    <div id="toastMessage" class="toast-message"></div>
 
     <audio id="bgm" loop src="./assets/bongtrang.mp3"></audio>
 

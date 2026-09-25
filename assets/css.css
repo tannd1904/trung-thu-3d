@@ -177,25 +177,446 @@ html {
 
 .click-hint {
   position: absolute;
-  bottom: 25px;
+  bottom: 84px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 5;
-  color: rgba(255, 235, 205, 0.75);
+  color: rgba(255, 235, 205, 0.85);
   font-size: 13px;
   letter-spacing: 1px;
   pointer-events: none;
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
   animation: pulseHint 2s infinite alternate;
   text-align: center;
   width: 90%;
+  white-space: nowrap;
 }
 
 @keyframes pulseHint {
   0% {
     opacity: 0.4;
+    transform: translate(-50%, 0);
   }
   100% {
-    opacity: 0.95;
+    opacity: 1;
+    transform: translate(-50%, -3px);
   }
 }
+
+/* MAGIC TRAIL CANVAS */
+#magic-trail-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 8;
+}
+
+/* DYNAMIC GREETING BANNER */
+.greeting-banner {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(28, 14, 40, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 30px;
+  padding: 8px 18px;
+  color: #fff;
+  font-size: 13.5px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  max-width: calc(100vw - 140px);
+  animation: fadeInDown 0.8s ease forwards;
+}
+
+.greeting-banner .greeting-icon {
+  color: #ffd700;
+  font-size: 14px;
+  animation: gentleTwinkle 2s infinite alternate;
+}
+
+@keyframes gentleTwinkle {
+  0% { transform: scale(0.9); filter: drop-shadow(0 0 2px #ffd700); }
+  100% { transform: scale(1.15); filter: drop-shadow(0 0 8px #ffb6c1); }
+}
+
+@keyframes fadeInDown {
+  0% { opacity: 0; transform: translateY(-15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* FLOATING BOTTOM DOCK */
+.bottom-dock {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+  background: rgba(20, 10, 32, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 215, 0, 0.3);
+  padding: 6px 10px;
+  border-radius: 35px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 182, 193, 0.15);
+  max-width: 95vw;
+}
+
+.dock-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f7d1d5;
+  padding: 8px 14px;
+  border-radius: 24px;
+  font-family: "Quicksand", sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  white-space: nowrap;
+}
+
+.dock-btn i {
+  font-size: 14px;
+  color: #ffd700;
+  transition: transform 0.25s ease;
+}
+
+.dock-btn:hover {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: rgba(255, 215, 0, 0.6);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.25);
+}
+
+.dock-btn:active {
+  transform: scale(0.95);
+}
+
+.dock-btn.highlight {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.35), rgba(255, 117, 143, 0.35));
+  border-color: rgba(255, 117, 143, 0.5);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 105, 180, 0.3);
+}
+
+.dock-btn.highlight i {
+  color: #ff758f;
+  animation: heartBeat 1.4s infinite ease-in-out;
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+}
+
+/* CUSTOM WISH CARD */
+.custom-wish-card {
+  border-color: rgba(255, 182, 193, 0.6);
+  box-shadow: 0 0 40px rgba(255, 105, 180, 0.35), inset 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.modal-badge {
+  display: inline-block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.modal-sub {
+  font-size: 13.5px;
+  color: #e0d0f5;
+  margin-bottom: 14px;
+}
+
+.input-group textarea {
+  width: 100%;
+  background: rgba(15, 8, 28, 0.85);
+  border: 1.5px solid rgba(255, 182, 193, 0.4);
+  border-radius: 14px;
+  color: #fff;
+  padding: 12px;
+  font-family: "Quicksand", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
+}
+
+.input-group textarea:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.35);
+  background: rgba(25, 12, 45, 0.95);
+}
+
+.submit-wish-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #e63946, #ff758f);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-family: "Quicksand", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(230, 57, 70, 0.5);
+  transition: all 0.3s ease;
+  margin-bottom: 14px;
+}
+
+.submit-wish-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(255, 105, 180, 0.6);
+  filter: brightness(1.1);
+}
+
+.submit-wish-btn:active {
+  transform: scale(0.97);
+}
+
+/* VITAMIN / RX PRESCRIPTION CARD */
+.vitamin-card {
+  border-color: rgba(255, 105, 180, 0.6);
+}
+
+.rx-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(255, 215, 0, 0.4);
+  margin-bottom: 16px;
+}
+
+.rx-symbol {
+  font-family: "Dancing Script", cursive;
+  font-size: 42px;
+  font-weight: 700;
+  color: #ff758f;
+  line-height: 1;
+}
+
+.rx-title {
+  font-family: "Dancing Script", cursive;
+  font-size: 24px;
+  color: #ffd700;
+}
+
+.rx-patient {
+  font-size: 13px;
+  color: #ddd;
+}
+
+.rx-patient strong {
+  color: #ff758f;
+}
+
+.pill-display {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  padding: 22px 18px;
+  margin: 14px 0 18px 0;
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.35s ease;
+}
+
+.pill-icon {
+  font-size: 42px;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+  animation: gentleFloat 3s infinite ease-in-out;
+}
+
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.pill-content {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: #fff;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.next-pill-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 117, 143, 0.35));
+  border: 1.5px solid rgba(255, 215, 0, 0.6);
+  color: #ffd700;
+  border-radius: 20px;
+  font-family: "Quicksand", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  margin-bottom: 12px;
+}
+
+.next-pill-btn:hover {
+  background: rgba(255, 215, 0, 0.35);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+/* LETTER MODAL */
+.letter-card {
+  background: linear-gradient(135deg, rgba(45, 20, 40, 0.97), rgba(25, 10, 30, 0.99));
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  max-width: 460px;
+  padding: 32px 24px 26px 24px;
+  box-shadow: 0 0 50px rgba(255, 182, 193, 0.35);
+}
+
+.wax-seal {
+  width: 48px;
+  height: 48px;
+  background: radial-gradient(circle, #e63946, #9b1d20);
+  border: 2px solid #ffd700;
+  border-radius: 50%;
+  margin: 0 auto 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffd700;
+  font-size: 18px;
+  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.6);
+}
+
+.letter-heading {
+  font-family: "Dancing Script", cursive;
+  font-size: 30px;
+  color: #ffd700;
+  margin-bottom: 16px;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.letter-body {
+  text-align: left;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #f5e9fc;
+}
+
+.letter-body p {
+  font-style: normal;
+  margin-bottom: 12px;
+}
+
+.letter-closing {
+  font-weight: 600;
+  color: #ffd700 !important;
+  margin-top: 14px;
+}
+
+.letter-signature {
+  text-align: right;
+  font-family: "Dancing Script", cursive;
+  font-size: 18px;
+  color: #ff9ebb;
+  margin-top: 14px;
+}
+
+/* TOAST NOTIFICATION */
+.toast-message {
+  position: fixed;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(30, 12, 45, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 215, 0, 0.6);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.3);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-align: center;
+  max-width: 90vw;
+}
+
+.toast-message.active {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 600px) {
+  .greeting-banner {
+    top: 15px;
+    left: 15px;
+    font-size: 12px;
+    padding: 6px 14px;
+    max-width: calc(100vw - 125px);
+  }
+  
+  .bottom-dock {
+    bottom: 15px;
+    gap: 6px;
+    padding: 5px 8px;
+  }
+  
+  .dock-btn {
+    padding: 7px 10px;
+    font-size: 11px;
+    gap: 5px;
+  }
+  
+  .dock-btn i {
+    font-size: 12px;
+  }
+  
+  .click-hint {
+    bottom: 72px;
+    font-size: 11.5px;
+  }
+  
+  .wish-card {
+    padding: 24px 16px 20px 16px;
+  }
+}
+
