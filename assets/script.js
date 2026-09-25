@@ -354,7 +354,7 @@ const interactiveObjects = [];
 
 const wishList = [
   {
-    text: "Chúc Hồng Vân một mùa Trung Thu đoàn viên, tràn ngập niềm vui và hạnh phúc!",
+    text: "Chúc Hồng Vân xinh đẹp một mùa Trung Thu tràn ngập niềm vui và hạnh phúc!",
     img: "./assets/1.jpg",
   },
   {
@@ -366,20 +366,28 @@ const wishList = [
     img: "./assets/3.jpg",
   },
   {
-    text: "Chúc Hồng Vân luôn giữ được tâm hồn trong trẻo, yêu đời như ánh trăng rằm.",
+    text: "Chúc Hồng Vân mau sớm hết bệnh, ăn uống thật ngon miệng và nhanh khỏe lại nhé!",
     img: "./assets/1.jpg",
   },
   {
-    text: "Trung Thu bình an, vạn sự như ý, công danh thăng tiến rực rỡ!",
-    img: "./assets/2.jpg",
-  },
-  {
-    text: "Chúc Hồng Vân mau sớm hết bệnh và mau khỏe trở lại vui vẻ yêu đời nha.",
+    text: "Nhớ giữ ấm, uống nhiều nước ấm và nghỉ ngơi thật nhiều nha Hồng Vân bé nhỏ đáng yêu. Sớm khỏe lại để đón những ngày rực rỡ phía trước!",
     img: "./assets/3.jpg",
   },
   {
-    text: "Sức khỏe dồi dào, tâm an yên, miệng luôn mỉm cười rạng rỡ.",
+    text: "Mong mọi mệt mỏi bệnh tật tan biến theo gió thu, chúc Hồng Vân sớm hồi phục và nụ cười rực rỡ lại nở trên môi.",
     img: "./assets/1.jpg",
+  },
+  {
+    text: "Chúc Hồng Vân luôn giữ được tâm hồn trong trẻo, yêu đời như ánh trăng rằm.",
+    img: "./assets/2.jpg",
+  },
+  {
+    text: "Đêm nay trăng rằm sẽ mang theo điều ước chân thành: Cầu chúc Hồng Vân luôn bình an, mạnh khỏe và hạnh phúc mỗi ngày.",
+    img: "./assets/3.jpg",
+  },
+  {
+    text: "Trung Thu bình an, vạn sự như ý, sức khỏe dồi dào và miệng luôn mỉm cười thật tươi nha Hồng Vân!",
+    img: "./assets/2.jpg",
   },
 ];
 
